@@ -15,6 +15,7 @@ export const COLORS = {
 
   info: "#2563EB",          // biru → status in_box
   infoLight: "#EFF6FF",
+  textMain: "#000000",
 
   muted: "#6B7280",         // abu → status returned
   mutedLight: "#F9FAFB",
@@ -27,6 +28,12 @@ export const COLORS = {
   border: "#E2E8F0",
   text: "#1E293B",
   textSecondary: "#64748B",
+};
+export const SIZES = {
+  padding: 20,
+  radius: 12,
+  fontTitle: 18,
+  fontBody: 14,
 };
 
 // ─── STATUS CONFIG ───────────────────────────────────────

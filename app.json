@@ -17,7 +17,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.yourname.campuslibrary",
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
       }
     },
     "android": {
@@ -68,7 +70,8 @@
           "sounds": [],
           "mode": "production"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

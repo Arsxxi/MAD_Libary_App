@@ -16,14 +16,19 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
-          <Stack.Screen name="auth" />
-          <Stack.Screen name="navigation" />
-          <Stack.Screen name="home" />
-          <Stack.Screen name="book" />
-          <Stack.Screen name="bookmarks" />
-          <Stack.Screen name="loans" />
-          <Stack.Screen name="profile" />
-          <Stack.Screen name="qr" />
+          <Stack.Screen name="auth/LoginScreen" />
+          <Stack.Screen name="auth/RegisterScreen" />
+          <Stack.Screen name="navigation/navigation" />
+          <Stack.Screen name="home/HomeScreen" />
+          <Stack.Screen name="book/BookDetailScreen" />
+          <Stack.Screen name="book/Bookspage" />
+          <Stack.Screen name="bookmarks/BookmarksScreen" />
+          <Stack.Screen name="loans/LoanDetailScreen" />
+          <Stack.Screen name="loans/MyLoansScreen" />
+          <Stack.Screen name="loans/ReturnBooks" />
+          <Stack.Screen name="profile/ProfileScreen" />
+          <Stack.Screen name="qr/MyQRScreen" />
+          <Stack.Screen name="qr/ScanQRScreen" />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

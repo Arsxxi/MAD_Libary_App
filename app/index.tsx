@@ -11,9 +11,9 @@ export default function Index() {
   async function checkAuth() {
     const userId = await SecureStore.getItemAsync('campus_library_user_id');
     if (userId) {
-      router.replace('/navigation');  // sudah login → ke tab navigator
+      router.replace('/navigation/navigation');  // sudah login → ke tab navigator
     } else {
-      router.replace('/auth/login');  // belum login → ke login
+      router.replace('/auth/LoginScreen');  // belum login → ke login
     }
   }
 

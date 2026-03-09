@@ -11,7 +11,7 @@ export default function LoginScreen() {
   const [nim, setNim] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
+  
   // Ambil fungsi setUser dari Zustand
   const setUser = useAppStore((state) => state.setUser);
   
@@ -37,7 +37,7 @@ export default function LoginScreen() {
         setUser(result.user);
         
         // 3. Arahkan ke halaman utama
-        router.replace('/home/HomeScreen');
+        router.replace('/tabs');
       }
     } catch (error: any) {
       // Menangkap error yang dilempar dari Convex (misal: "Password salah.")

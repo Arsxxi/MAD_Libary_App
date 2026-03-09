@@ -2,17 +2,19 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../utils/constants';
-
+import { router } from 'expo-router';
 interface BookCardProps {
+  bookId: string;  
   title: string;
   author: string;
   imageUrl?: string; // --- UBAH: Sekarang menggunakan string (URL dari Convex) ---
-  onPress: () => void;
+  onPress?: () => void;
   customButtonText?: string;
   isHorizontal?: boolean;
 }
 
 export default function BookCard({ 
+  bookId,     
   title, 
   author, 
   imageUrl, 
@@ -21,16 +23,25 @@ export default function BookCard({
   isHorizontal = false 
 }: BookCardProps) {
   
-  // --- LOGIKA FALLBACK GAMBAR ---
-  // Jika buku tidak punya coverImage di database, pakai gambar default
   const imageSource = imageUrl 
     ? { uri: imageUrl } 
     : require('../assets/images/icon.png'); 
 
+  // ← routing ke BookDetail
+  function handlePress() {
+    if (onPress) {
+      onPress();
+    } else {
+      router.push({
+        pathname: '/book/BookDetailScreen',
+        params: { bookId }
+      });
+    }
+  }
+
   return (
     <View style={[styles.cardContainer, isHorizontal ? styles.horizontalSize : styles.verticalSize]}>
       <View style={styles.imageContainer}>
-        {/* --- STYLING GAMBAR (Terima URI dari Convex) --- */}
         <Image source={imageSource} style={styles.bookImage} resizeMode="cover" />
       </View>
       
@@ -39,12 +50,13 @@ export default function BookCard({
         <Text style={styles.titleText} numberOfLines={2}>{title}</Text>
       </View>
 
-      <TouchableOpacity style={styles.actionButton} onPress={onPress}>
+      <TouchableOpacity style={styles.actionButton} onPress={handlePress}>
         <Text style={styles.buttonText}>{customButtonText}</Text>
       </TouchableOpacity>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   /* --- WRAPPER UTAMA CARD --- */

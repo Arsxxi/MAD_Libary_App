@@ -118,6 +118,11 @@ export default function LoginScreen() {
           {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginButtonText}>MASUK</Text>}
         </TouchableOpacity>
 
+        <TouchableOpacity style={styles.adminButton} onPress={() => router.push('/admin')}>
+          <Ionicons name="person" size={14} color="white" />
+          <Text style={styles.adminButtonText}>Admin login</Text>
+        </TouchableOpacity>
+
         <View style={styles.registerContainer}>
           <Text style={styles.registerText}>Mahasiswa baru? </Text>
           <TouchableOpacity onPress={() => router.push('/auth/RegisterScreen')}>
@@ -148,6 +153,8 @@ const styles = StyleSheet.create({
   input: { flex: 1, color: '#1F2937', fontSize: 14, fontWeight: '500' },
   loginButton: { backgroundColor: '#007AFF', borderRadius: 16, height: 60, justifyContent: 'center', alignItems: 'center', marginTop: 20 },
   loginButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+  adminButton: { backgroundColor: '#3b82f6', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', alignSelf: 'center', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 20, marginTop: 15 },
+  adminButtonText: { color: 'white', fontSize: 12, fontWeight: 'bold', marginLeft: 8 },
   registerContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
   registerText: { color: '#9CA3AF', fontSize: 12, fontWeight: '500' },
   registerLink: { color: '#007AFF', fontSize: 12, fontWeight: 'bold' },

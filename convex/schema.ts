@@ -24,7 +24,7 @@ export default defineSchema({
     callNumber: v.string(),
     rackLocation: v.string(),
     isbn: v.optional(v.string()),
-    coverImage: v.optional(v.string()),
+    coverImage: v.optional(v.union(v.string(), v.id("_storage"))),
     status: v.string(),            // "available" | "borrowed"
     totalCopies: v.number(),
     availableCopies: v.number(),

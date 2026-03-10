@@ -30,21 +30,40 @@ export const searchBooks = query({
   },
 });
 
-// ─── GET SEMUA BUKU ───────────────────────────────────────
 export const getAllBooks = query({
   handler: async (ctx) => {
-    return await ctx.db.query("books").collect();
+    const books = await ctx.db.query("books").collect();
+
+    return await Promise.all(
+      books.map(async (book) => {
+        let coverImage = book.coverImage ?? null;
+
+        
+        if (coverImage && !coverImage.startsWith('http')) {
+          coverImage = await ctx.storage.getUrl(coverImage as any);
+        }
+
+        return { ...book, coverImage };
+      })
+    );
   },
 });
 
-// ─── GET BUKU BY ID ──────────────────────────────────────
 export const getBookById = query({
   args: { bookId: v.id("books") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.bookId);
+    const book = await ctx.db.get(args.bookId);
+    if (!book) return null;
+
+    let coverImage = book.coverImage ?? null;
+
+    if (coverImage && !coverImage.startsWith('http')) {
+      coverImage = await ctx.storage.getUrl(coverImage as any);
+    }
+
+    return { ...book, coverImage };
   },
 });
-
 // ─── UPDATE STATUS BUKU ──────────────────────────────────
 export const updateBookStatus = mutation({
   args: {

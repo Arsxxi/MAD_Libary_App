@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
-import { useAppStore } from '../../store/useAppStore'; // Gunakan store kamu
+import { useAppStore } from '../../store/useAppStore'; 
 import { COLORS } from '../../utils/constants';
+import { Ionicons, Feather } from '@expo/vector-icons';
 
 export default function ConfirmBorrowScreen() {
   const { bookId } = useLocalSearchParams();

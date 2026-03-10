@@ -39,8 +39,20 @@ export default function BookCard({
     }
   }
 
+  if (isHorizontal) {
+    return (
+      <TouchableOpacity style={[styles.cardContainer, styles.horizontalContainer]} onPress={handlePress} activeOpacity={0.8}>
+        <Image source={imageSource} style={styles.horizontalImage} resizeMode="cover" />
+        <View style={styles.horizontalTextContainer}>
+          <Text style={styles.authorText}>{author}</Text>
+          <Text style={styles.titleText} numberOfLines={3}>{title}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
   return (
-    <View style={[styles.cardContainer, isHorizontal ? styles.horizontalSize : styles.verticalSize]}>
+    <View style={styles.cardContainer}>
       <View style={styles.imageContainer}>
         <Image source={imageSource} style={styles.bookImage} resizeMode="cover" />
       </View>
@@ -62,22 +74,35 @@ const styles = StyleSheet.create({
   /* --- WRAPPER UTAMA CARD --- */
   cardContainer: {
     backgroundColor: COLORS.white,
-    borderRadius: SIZES.radius,
+    borderRadius: SIZES.radius + 4,
     padding: 12,
     marginRight: 16,
     marginBottom: 16,
+    width: 160,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3, // Shadow untuk Android
+    elevation: 3,
     justifyContent: 'space-between',
   },
-  horizontalSize: {
-    width: 200,
+  horizontalContainer: {
+    flexDirection: 'row',
+    width: 260,
+    height: 100,
+    alignItems: 'center',
+    padding: 10,
+    justifyContent: 'flex-start',
   },
-  verticalSize: {
-    width: 160,
+  horizontalImage: {
+    width: 55,
+    height: 80,
+    borderRadius: 6,
+    marginRight: 12,
+  },
+  horizontalTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
   /* --- BAGIAN GAMBAR --- */
   imageContainer: {
@@ -105,14 +130,15 @@ const styles = StyleSheet.create({
   },
   /* --- BAGIAN TOMBOL --- */
   actionButton: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: 8,
-    borderRadius: 8,
+    backgroundColor: '#007AFF', // Matches the design's bright blue exact color 
+    paddingVertical: 6,
+    borderRadius: 6,
     alignItems: 'center',
+    marginTop: 8,
   },
   buttonText: {
     color: COLORS.white,
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
 });

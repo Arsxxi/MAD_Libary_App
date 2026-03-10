@@ -125,10 +125,7 @@ export default function MyLoansScreen() {
         </View>
 
         {/* Top Active Section */}
-        <View style={styles.headerRowSpaceBetween}>
-          <View style={styles.pillOutline}>
-            <Text style={styles.pillTextDark}>Report lost book</Text>
-          </View>
+        <View style={[styles.headerRowSpaceBetween, { justifyContent: 'flex-end' }]}>
           <View style={[styles.pillFilled, { backgroundColor: '#007AFF', paddingHorizontal: 25 }]}>
             <Text style={styles.pillTextWhite}>Active</Text>
           </View>

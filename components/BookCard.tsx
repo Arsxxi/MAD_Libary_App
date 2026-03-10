@@ -44,8 +44,8 @@ export default function BookCard({
       <TouchableOpacity style={[styles.cardContainer, styles.horizontalContainer]} onPress={handlePress} activeOpacity={0.8}>
         <Image source={imageSource} style={styles.horizontalImage} resizeMode="cover" />
         <View style={styles.horizontalTextContainer}>
-          <Text style={styles.authorText}>{author}</Text>
-          <Text style={styles.titleText} numberOfLines={3}>{title}</Text>
+          <Text style={styles.horizontalAuthorText}>{author}</Text>
+          <Text style={styles.horizontalTitleText} numberOfLines={2}>{title}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -88,21 +88,36 @@ const styles = StyleSheet.create({
   },
   horizontalContainer: {
     flexDirection: 'row',
-    width: 260,
-    height: 100,
+    width: 280,
+    height: 110,
     alignItems: 'center',
-    padding: 10,
+    padding: 12,
     justifyContent: 'flex-start',
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    marginRight: 15,
+    marginBottom: 5,
   },
   horizontalImage: {
-    width: 55,
-    height: 80,
-    borderRadius: 6,
-    marginRight: 12,
+    width: 65,
+    height: 90,
+    borderRadius: 8,
+    marginRight: 15,
   },
   horizontalTextContainer: {
     flex: 1,
     justifyContent: 'center',
+  },
+  horizontalAuthorText: {
+    fontSize: 12,
+    color: '#888',
+    marginBottom: 4,
+  },
+  horizontalTitleText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#111',
+    lineHeight: 20,
   },
   /* --- BAGIAN GAMBAR --- */
   imageContainer: {

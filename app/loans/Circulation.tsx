@@ -4,6 +4,7 @@ import { View, StyleSheet, Text, Image, TouchableOpacity, SafeAreaView, Platform
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Circulation() {
   const { transactionId } = useLocalSearchParams();
@@ -26,6 +27,11 @@ export default function Circulation() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={28} color="black" />
+        </TouchableOpacity>
+      </View>
       <View style={styles.container}>
         <Image
           source={{ uri: book.coverImage }}
@@ -60,6 +66,14 @@ export default function Circulation() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: 'white', paddingTop: Platform.OS === 'android' ? 25 : 0 },
+  header: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+    backgroundColor: 'white',
+  },
+  backButton: { padding: 5 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   
   container: {

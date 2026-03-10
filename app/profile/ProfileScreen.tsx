@@ -12,9 +12,14 @@ import * as SecureStore from 'expo-secure-store';
 // Ganti import Clerk dengan useAuth lokal kamu
 import { useAuth } from '../../hooks/useAuth'; // Sesuaikan path ke folder hooks/store kamu
 
+import { useAppStore } from '../../store/useAppStore';
+
 export default function ProfileScreen() {
   // Ambil userId dari hook useAuth lokal kamu
   const { userId } = useAuth();
+  
+  // Ambil jumlah bookmark dari store
+  const bookmarkedBookIds = useAppStore((state) => state.bookmarkedBookIds);
 
   // Tambahkan 'skip' jika userId kosong agar tidak muncul error validator
   const profile = useQuery(
@@ -66,12 +71,11 @@ export default function ProfileScreen() {
           <Text style={styles.statLabel}>Active</Text>
           <Text style={styles.statNumber}>{profile.stats.currentlyBorrowed} books</Text>
         </View>
-        <View style={styles.statBox}>
+        <TouchableOpacity style={styles.statBox} onPress={() => router.push('/bookmarks/BookmarksScreen')}>
           <Feather name="bookmark" size={32} color="#007AFF" />
           <Text style={styles.statLabel}>Saved</Text>
-          {/* Menggunakan stats cadangan untuk "Saved", misalnya 32 */}
-          <Text style={styles.statNumber}>32 books</Text>
-        </View>
+          <Text style={styles.statNumber}>{bookmarkedBookIds.size} books</Text>
+        </TouchableOpacity>
       </View>
 
       {/* --- LOGOUT BUTTON --- */}

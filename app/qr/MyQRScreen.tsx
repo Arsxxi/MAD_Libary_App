@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
 import { useAppStore } from '../../store/useAppStore';
 import { COLORS } from '../../utils/constants';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function ShowQR() {
   const { mode, bookId, transactionId } = useLocalSearchParams();
@@ -22,8 +23,8 @@ export default function ShowQR() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backText}>← Back</Text>
+        <TouchableOpacity onPress={() => router.back()} style={{ padding: 10 }}>
+          <Ionicons name="arrow-back" size={28} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           {mode === 'borrow' ? 'Borrowing QR' : 'Return QR'}
@@ -59,10 +60,9 @@ export default function ShowQR() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.primary, padding: 20 },
-  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 30, marginTop: 20 },
-  headerTitle: { color: 'white', fontSize: 20, fontWeight: 'bold', marginLeft: 20 },
-  backText: { color: 'white', fontSize: 16 },
+  container: { flex: 1, backgroundColor: COLORS.primary, padding: 20, paddingTop: Platform.OS === 'android' ? 40 : 20 },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 30 },
+  headerTitle: { color: 'white', fontSize: 20, fontWeight: 'bold', marginLeft: 10 },
   card: { backgroundColor: 'white', borderRadius: 30, padding: 30, alignItems: 'center', elevation: 10 },
   studentLabel: { fontSize: 12, letterSpacing: 2, color: '#888', marginBottom: 20, fontWeight: 'bold' },
   qrContainer: { padding: 15, backgroundColor: '#F9F9F9', borderRadius: 20, marginBottom: 25 },

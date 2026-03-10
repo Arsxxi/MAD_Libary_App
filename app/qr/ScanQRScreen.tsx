@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { CameraView } from 'expo-camera';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function ScanDropbox() {
   const { transactionId } = useLocalSearchParams();
@@ -38,21 +39,36 @@ export default function ScanDropbox() {
         style={StyleSheet.absoluteFill} 
         onBarcodeScanned={onScan}
       />
-      <View style={styles.overlay}>
-        <Text style={styles.scanText}>Scan QR di Kotak Dropbox</Text>
-        <View style={styles.focusFrame} />
-        <TouchableOpacity style={styles.cancelBtn} onPress={() => router.back()}>
-          <Text style={{color: 'white'}}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
+      <SafeAreaView style={styles.overlayWrapper}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+            <Ionicons name="arrow-back" size={28} color="white" />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.overlay}>
+          <Text style={styles.scanText}>Scan QR di Kotak Dropbox</Text>
+          <View style={styles.focusFrame} />
+        </View>
+      </SafeAreaView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
+  overlayWrapper: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? 40 : 10,
+    alignItems: 'flex-start'
+  },
+  backBtn: {
+    padding: 10,
+  },
+  overlay: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: -80 },
   scanText: { color: 'white', fontSize: 18, marginBottom: 20, fontWeight: 'bold' },
   focusFrame: { width: 250, height: 250, borderColor: 'white', borderRadius: 20, borderStyle: 'dashed', borderWidth: 2 },
-  cancelBtn: { marginTop: 40, padding: 15 }
 });

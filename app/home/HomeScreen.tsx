@@ -3,7 +3,9 @@ import { View, Text, ScrollView, TextInput, StyleSheet, ActivityIndicator, SafeA
 import { useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { api } from '../../convex/_generated/api';
+import { Id } from '../../convex/_generated/dataModel';
 import { Feather } from '@expo/vector-icons';
+import { useAuth } from '../../hooks/useAuth';
 
 import BookCard from '../../components/BookCard';
 import { COLORS } from '../../utils/constants';
@@ -11,6 +13,12 @@ import { COLORS } from '../../utils/constants';
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
+  const { userId } = useAuth();
+
+  const profile = useQuery(
+    api.users.getProfile, 
+    userId ? { userId: userId as Id<'users'> } : 'skip'
+  );
 
   const books = useQuery(api.books.getAllBooks);
 
@@ -35,33 +43,35 @@ export default function HomeScreen() {
         <View style={styles.headerSection}>
           <SafeAreaView>
             <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>Hello Clio</Text>
+              <Text style={styles.headerTitle}>Hello {profile ? profile.name.split(' ')[0] : 'User'}</Text>
               <Text style={styles.headerSubtitle}>Let's Start Reading</Text>
             </View>
             
             <View style={styles.recContainer}>
               <Text style={styles.sectionTitleWhite}>Reccomendation</Text>
-              <ScrollView 
-                horizontal 
-                showsHorizontalScrollIndicator={false} 
-                style={styles.horizontalScroll}
-                contentContainerStyle={{ paddingHorizontal: 20 }}
-              >
-                {recommendations.map((book) => (
-                  <BookCard 
-                    key={book._id}
-                    bookId={book._id}
-                    title={book.title}
-                    author={book.author}
-                    imageUrl={book.coverImage}
-                    onPress={() => router.push({
-                      pathname: '/book/BookDetailScreen',
-                      params: { bookId: book._id }
-                    })}
-                    isHorizontal={true}
-                  />
-                ))}
-              </ScrollView>
+              <View style={styles.recScrollWrapper}>
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false} 
+                  style={styles.horizontalScrollBounded}
+                  contentContainerStyle={styles.horizontalScrollContentBounded}
+                >
+                  {recommendations.map((book) => (
+                    <BookCard 
+                      key={book._id}
+                      bookId={book._id}
+                      title={book.title}
+                      author={book.author}
+                      imageUrl={book.coverImage}
+                      onPress={() => router.push({
+                        pathname: '/book/BookDetailScreen',
+                        params: { bookId: book._id }
+                      })}
+                      isHorizontal={true}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
             </View>
           </SafeAreaView>
         </View>
@@ -150,8 +160,10 @@ const styles = StyleSheet.create({
   headerSubtitle: { fontSize: 16, color: 'rgba(255,255,255,0.8)', marginBottom: 25 },
   
   recContainer: { marginTop: 10 },
-  sectionTitleWhite: { fontSize: 18, fontWeight: '500', color: COLORS.white, marginBottom: 15, paddingHorizontal: 20 },
-  horizontalScroll: { flexGrow: 0 },
+  sectionTitleWhite: { fontSize: 18, fontWeight: '500', color: COLORS.white, marginBottom: 10, paddingHorizontal: 20 },
+  recScrollWrapper: { marginHorizontal: 1, overflow: 'hidden' },
+  horizontalScrollBounded: { flexGrow: 0 },
+  horizontalScrollContentBounded: { paddingRight: 5, paddingBottom: 5 },
   
   contentSection: { 
     paddingTop: 30,

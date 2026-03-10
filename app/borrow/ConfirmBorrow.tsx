@@ -6,21 +6,33 @@ import { api } from '../../convex/_generated/api';
 import { useAppStore } from '../../store/useAppStore'; 
 import { COLORS } from '../../utils/constants';
 import { Ionicons, Feather } from '@expo/vector-icons';
-
+import { ScrollView } from 'react-native';
 export default function ConfirmBorrowScreen() {
-  const { bookId } = useLocalSearchParams();
+  const { bookId, duration, dueDate } = useLocalSearchParams();
   const router = useRouter();
   const user = useAppStore((state) => state.user);
   const book = useQuery(api.books.getBookById, { bookId: bookId as any });
-  
-  const [duration, setDuration] = useState("14 days");
 
-  // Logika hitung tanggal (Due Date)
-  const dueDate = new Date();
-  dueDate.setDate(dueDate.getDate() + 14);
+  // ambil duration dari params, fallback 14 kalau tidak ada
+  const durationNumber = duration ? Number(duration) : 14;
+
+  // ambil dueDate dari params kalau ada, kalau tidak hitung dari duration
+  const dueDateObj = dueDate
+    ? new Date(Number(dueDate))
+    : (() => { const d = new Date(); d.setDate(d.getDate() + durationNumber); return d; })();
+
+  const formattedDueDate = dueDateObj.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).toLowerCase();
 
   return (
-    <View style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+    >
       <Image source={{ uri: book?.coverImage }} style={styles.mainCover} />
       <Text style={styles.author}>{book?.author}</Text>
       <Text style={styles.title}>{book?.title}</Text>
@@ -37,12 +49,14 @@ export default function ConfirmBorrowScreen() {
         <View style={styles.row}>
           <View style={{ flex: 1, marginRight: 10 }}>
             <Text style={styles.label}>Borrow duration</Text>
-            <View style={styles.inputBox}><Text>{duration}</Text></View>
+            <View style={styles.inputBox}>
+              <Text>{durationNumber} days</Text>
+            </View>
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.label}>Due</Text>
             <View style={styles.inputBox}>
-                <Text>{dueDate.toLocaleDateString('id-ID')}</Text>
+              <Text>{formattedDueDate}</Text>
             </View>
           </View>
         </View>
@@ -51,8 +65,8 @@ export default function ConfirmBorrowScreen() {
       <TouchableOpacity 
         style={styles.btnProceed}
         onPress={() => router.push({ 
-            pathname: '/qr/MyQRScreen', 
-            params: { mode: 'borrow', bookId } 
+          pathname: '/qr/MyQRScreen', 
+          params: { mode: 'borrow', bookId } 
         })}
       >
         <Text style={styles.btnText}>Proceed</Text>
@@ -61,12 +75,17 @@ export default function ConfirmBorrowScreen() {
       <TouchableOpacity onPress={() => router.back()}>
         <Text style={styles.btnCancel}>Cancel</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 25, backgroundColor: 'white', alignItems: 'center' },
+  scrollContent: { 
+  paddingBottom: 40,
+  flexGrow: 1,
+  alignItems: 'center' 
+  },
+  container: { flex: 1, padding: 25, backgroundColor: 'white'},
   mainCover: { width: 180, height: 260, borderRadius: 10, marginTop: 40 },
   author: { color: 'grey', marginTop: 20 },
   title: { fontSize: 22, fontWeight: 'bold', textAlign: 'center' },

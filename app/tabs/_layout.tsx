@@ -52,6 +52,7 @@ export default function TabLayout() {
         name="qr"
         options={{
           title: 'QR Saya',
+          tabBarStyle: { display: 'none' },
           tabBarIcon: ({ focused }) => (
             <View style={styles.qrWrapper}>
               <Ionicons name="qr-code" size={28} color="white" />
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2563EB',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 25,
     shadowColor: '#2563EB',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,

@@ -7,8 +7,8 @@ import { COLORS } from '../../utils/constants';
 import { Feather } from '@expo/vector-icons';
 
 // Local specific component matching the requested user design
-const CatalogCard = ({ book, onPress }: { book: any, onPress: () => void }) => (
-  <TouchableOpacity style={styles.cardContainer} onPress={onPress} activeOpacity={0.8}>
+const CatalogCard = ({ book, onPress, containerStyle }: { book: any, onPress: () => void, containerStyle?: any }) => (
+  <TouchableOpacity style={[styles.cardContainer, containerStyle]} onPress={onPress} activeOpacity={0.8}>
     <Image source={{ uri: book.coverImage || 'https://via.placeholder.com/150' }} style={styles.cardImage} resizeMode="cover" />
     <View style={styles.textContainer}>
       <Text style={styles.authorText} numberOfLines={1}>{book.author || 'Unknown Author'}</Text>
@@ -69,7 +69,8 @@ export default function BookPage() {
           {filteredBooks.slice(0, 4).map((book) => (
             <CatalogCard 
               key={`top-${book._id}`} 
-              book={book} 
+              book={book}
+              containerStyle={styles.cardContainerHorizontal}
               onPress={() => router.push({ pathname: '/book/BookDetailScreen', params: { bookId: book._id } })} 
             />
           ))}
@@ -111,9 +112,23 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingHorizontal: 20,
     height: 50,
-    marginTop: 20,
+    marginTop: 30,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 4,
   },
+  cardContainerHorizontal: {
+  backgroundColor: '#FFF',
+  borderWidth: 1.5,
+  borderColor: '#E8E8E8',
+  borderRadius: 16,
+  padding: 10,
+  width: 190,        // ← fixed width, tidak terlalu lebar
+  marginRight: 12,
+},
   searchInput: { flex: 1, fontSize: 15, color: '#333' },
 
   topActionRow: { alignItems: 'flex-end', paddingHorizontal: 15, marginBottom: 20 },
@@ -140,7 +155,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     paddingHorizontal: 15,
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
   },
 
   /* Card Components styling targeted to the new design */
@@ -150,13 +165,13 @@ const styles = StyleSheet.create({
     borderColor: '#E8E8E8',
     borderRadius: 16,
     padding: 10,
-    width: 125, // Specifically scaled to fit almost 3 elements across on normal width phone
-    marginRight: 10,
+    width: '47%', // Specifically scaled to fit almost 3 elements across on normal width phone
+    
     marginBottom: 15,
   },
   cardImage: {
     width: '100%',
-    height: 145,
+    height: 250,
     borderRadius: 8,
     marginBottom: 10,
   },
@@ -165,15 +180,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   authorText: {
-    fontSize: 9,
+    fontSize: 11,
     color: '#888',
     marginBottom: 2,
   },
   titleText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '600',
     color: '#333',
-    lineHeight: 14,
+    lineHeight: 18,
   },
   cardBottom: {
     alignItems: 'flex-end',
@@ -181,13 +196,15 @@ const styles = StyleSheet.create({
   },
   seeNowBtn: {
     backgroundColor: '#007AFF',
-    paddingVertical: 5,
-    paddingHorizontal: 12,
+    paddingVertical: 8,    // ← naikkan dari 5
+    paddingHorizontal: 14,
     borderRadius: 12,
+    alignSelf: 'stretch',  // ← tombol full width seperti di home
+    alignItems: 'center',
   },
   seeNowText: {
     color: 'white',
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: 'bold'
   },
 });

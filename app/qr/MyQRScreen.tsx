@@ -4,12 +4,15 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
 import { useAppStore } from '../../store/useAppStore';
 import { COLORS } from '../../utils/constants';
-
+import { Ionicons } from '@expo/vector-icons';
 export default function ShowQR() {
   const { mode, bookId, transactionId } = useLocalSearchParams();
   const user = useAppStore((state) => state.user);
   const router = useRouter();
 
+
+  // tambah default value 'borrow' kalau mode tidak ada
+  const qrMode = mode ?? 'borrow';
   // Payload QR yang akan dibaca petugas
   const qrData = JSON.stringify({
     type: mode, // "borrow" | "return"
@@ -22,12 +25,13 @@ export default function ShowQR() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backText}>← Back</Text>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
-          {mode === 'borrow' ? 'Borrowing QR' : 'Return QR'}
+          {qrMode === 'borrow' ? 'Borrowing QR' : 'Return QR'}
         </Text>
+        <View style={{ width: 40 }} />
       </View>
 
       <View style={styles.card}>
@@ -60,9 +64,16 @@ export default function ShowQR() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.primary, padding: 20 },
-  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 30, marginTop: 20 },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 30, marginTop: 40 },
   headerTitle: { color: 'white', fontSize: 20, fontWeight: 'bold', marginLeft: 20 },
-  backText: { color: 'white', fontSize: 16 },
+  backButton: {
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  backgroundColor: 'rgba(255,255,255,0.2)',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
   card: { backgroundColor: 'white', borderRadius: 30, padding: 30, alignItems: 'center', elevation: 10 },
   studentLabel: { fontSize: 12, letterSpacing: 2, color: '#888', marginBottom: 20, fontWeight: 'bold' },
   qrContainer: { padding: 15, backgroundColor: '#F9F9F9', borderRadius: 20, marginBottom: 25 },

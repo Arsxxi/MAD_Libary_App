@@ -8,7 +8,8 @@ export default defineSchema({
     nim: v.string(),
     email: v.string(),
     passwordHash: v.string(),
-    digitalId: v.string(),         // ID unik untuk QR Code
+    digitalId: v.string(),
+    role: v.optional(v.string()), // "student" | "staff"         // ID unik untuk QR Code
     memberStatus: v.string(),      // "active" | "suspended"
     createdAt: v.number(),
   })

@@ -28,6 +28,7 @@ export const register = mutation({
     nim: v.string(),
     email: v.string(),
     password: v.string(),
+    
   },
   handler: async (ctx, args) => {
     // cek NIM sudah terdaftar
@@ -103,6 +104,7 @@ export const login = mutation({
         nim: user.nim,
         email: user.email,
         digitalId: user.digitalId,
+        role: user.role ?? 'student',
         memberStatus: user.memberStatus,
         createdAt: user.createdAt,
       },
@@ -125,6 +127,7 @@ export const getUserById = query({
       email: user.email,
       digitalId: user.digitalId,
       memberStatus: user.memberStatus,
+      role: user.role ?? 'student',  // ← tambah ini
       createdAt: user.createdAt,
     };
   },

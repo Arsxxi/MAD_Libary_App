@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CameraView } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
@@ -9,8 +9,8 @@ export default function ScanDropbox() {
   const { transactionId } = useLocalSearchParams();
   const router = useRouter();
   const [scanned, setScanned] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions(); // ← tambah ini
 
-  // Gunakan mutasi yang sudah kamu buat di transactions.ts
   const markAsInBox = useMutation(api.transactions.returnViaBox);
 
   const onScan = async ({ data }: any) => {
@@ -18,25 +18,41 @@ export default function ScanDropbox() {
     setScanned(true);
 
     try {
-      // Asumsi data QR di Box adalah "UB-DROPBOX-01"
       await markAsInBox({ 
         transactionId: transactionId as any,
         userId: "user_id_kamu" as any
       });
       alert("Berhasil! Silahkan masukkan buku ke dalam kotak.");
-      // navigate to the home/index page
-      router.replace('/');          // ← use a valid route
+      router.replace('/');
     } catch (e) {
       alert("Gagal memproses: " + e);
       setScanned(false);
     }
   };
 
+  // ← tambah permission check
+  if (!permission) return <View />;
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.overlay}>
+          <Text style={styles.scanText}>Butuh akses kamera</Text>
+          <TouchableOpacity style={styles.cancelBtn} onPress={requestPermission}>
+            <Text style={{ color: 'white' }}>Izinkan Kamera</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <CameraView 
         style={StyleSheet.absoluteFill} 
-        onBarcodeScanned={onScan}
+        facing="back"                          // ← tambah ini
+        onBarcodeScanned={scanned ? undefined : onScan}  // ← tambah guard
+        barcodeScannerSettings={{ barcodeTypes: ['qr'] }} // ← tambah ini
       />
       <View style={styles.overlay}>
         <Text style={styles.scanText}>Scan QR di Kotak Dropbox</Text>

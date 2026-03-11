@@ -30,6 +30,7 @@ export const searchBooks = query({
   },
 });
 
+
 export const getAllBooks = query({
   handler: async (ctx) => {
     const books = await ctx.db.query("books").collect();

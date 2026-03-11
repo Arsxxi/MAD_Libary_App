@@ -4,6 +4,7 @@ import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 import * as SecureStore from "expo-secure-store";
 
+
 const USER_ID_KEY = "campus_library_user_id";
 
 interface AuthUser {
@@ -13,6 +14,7 @@ interface AuthUser {
   email: string;
   digitalId: string;
   memberStatus: string;
+  role: string;           // ← tambah ini
   createdAt: number;
 }
 
@@ -31,10 +33,10 @@ export function useAuth() {
     isAuthenticated: false,
   });
 
+        // ← tambah ini
   const loginMutation = useMutation(api.auth.login);
   const registerMutation = useMutation(api.auth.register);
 
-  // load userId dari SecureStore saat app pertama dibuka
   useEffect(() => {
     loadStoredUser();
   }, []);
@@ -63,17 +65,14 @@ export function useAuth() {
         const result = await loginMutation({ nim, password });
 
         if (result.success && result.user) {
-          // simpan userId ke SecureStore
           await SecureStore.setItemAsync(USER_ID_KEY, result.user._id);
-
           setAuthState({
             user: result.user as AuthUser,
             userId: result.user._id as Id<"users">,
             isLoading: false,
             isAuthenticated: true,
           });
-
-          return { success: true };
+          return { success: true, role: result.user.role ?? 'student' };
         }
 
         return { success: false, error: "Login gagal." };
@@ -109,6 +108,7 @@ export function useAuth() {
       isLoading: false,
       isAuthenticated: false,
     });
+    // hapus router.replace dari sini juga
   }, []);
 
   return {

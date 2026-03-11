@@ -16,7 +16,7 @@ export default function ScanOptions() {
       <View style={styles.content}>
         <TouchableOpacity 
           style={styles.card} 
-          onPress={() => router.push('/admin/borrow')}
+          onPress={() => router.push('/admin/processbox')}
         >
           <MaterialCommunityIcons name="qrcode-scan" size={32} color="#007AFF" style={styles.icon} />
           <Text style={styles.cardText}>Procces Box</Text>
@@ -24,7 +24,7 @@ export default function ScanOptions() {
 
         <TouchableOpacity 
           style={styles.card} 
-          onPress={() => {}} // Scan counter behavior not specified, maybe a different page
+          onPress={() => router.push('/admin/return')} // ← arahkan ke return screen
         >
           <MaterialCommunityIcons name="qrcode-scan" size={32} color="#007AFF" style={styles.icon} />
           <Text style={styles.cardText}>Scan Counter</Text>

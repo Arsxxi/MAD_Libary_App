@@ -1,45 +1,47 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Platform, StatusBar } from 'react-native';
-import { router } from 'expo-router';
+
+import { useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
+import { useAppStore } from '../../store/useAppStore';
+import { useAuth } from '../../hooks/useAuth';
+
 export default function AdminDashboard() {
+  const user = useAppStore(state => state.user);
+  const { logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/auth/LoginScreen');
+  };
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#007AFF" />
-      
-      {/* Header with curved bottom */}
       <View style={styles.header}>
         <SafeAreaView>
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>Dashboard</Text>
-            <Text style={styles.headerSubtitle}>Welcome Admin 1</Text>
+            <Text style={styles.headerSubtitle}>
+              Welcome {user?.name ?? 'Admin'}  {/* ← nama dari store */}
+            </Text>
           </View>
         </SafeAreaView>
       </View>
 
-      {/* Content */}
       <View style={styles.content}>
-        <TouchableOpacity 
-          style={styles.card} 
-          onPress={() => router.push('/admin/return')}
-        >
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/admin/scan-options')}>
           <MaterialCommunityIcons name="qrcode-scan" size={32} color="#007AFF" style={styles.icon} />
           <Text style={styles.cardText}>Return Book QR</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.card} 
-          onPress={() => router.push('/admin/scan-options')}
-        >
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/admin/borrow')}>
           <MaterialCommunityIcons name="qrcode-scan" size={32} color="#007AFF" style={styles.icon} />
           <Text style={styles.cardText}>Borrow Book QR</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.card} 
-          onPress={() => router.push('/auth/LoginScreen')}
-        >
+        <TouchableOpacity style={styles.card} onPress={handleLogout}>
           <Ionicons name="person" size={32} color="#007AFF" style={styles.icon} />
           <Text style={styles.cardText}>Logout</Text>
         </TouchableOpacity>

@@ -55,7 +55,7 @@ export default function LoanDetailScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'white', padding: 25, alignItems: 'center' },
   bookInfoCard: { alignItems: 'center', marginTop: 40 },
-  cover: { width: 140, height: 200, borderRadius: 10 },
+  cover: { width: 140, height: 200  },
   badge: { backgroundColor: '#E3F2FD', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, marginTop: 15 },
   badgeText: { color: COLORS.primary, fontSize: 12, fontWeight: 'bold' },
   title: { fontSize: 20, fontWeight: 'bold', marginTop: 10, textAlign: 'center' },

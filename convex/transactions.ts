@@ -16,7 +16,10 @@ function calcFine(dueDate: number): number {
   const daysLate = Math.ceil((now - dueDate) / (1000 * 60 * 60 * 24));
   return daysLate * LOAN_RULES.finePerDay;
 }
-
+function isStorageId(value: string): boolean {
+  // Storage ID tidak mengandung "http" atau "https"
+  return !value.startsWith('http');
+}
 // ─── BORROW (Petugas mencatat setelah scan QR) ───────────
 export const borrowBook = mutation({
   args: {
@@ -81,23 +84,70 @@ export const getActiveLoans = query({
           q.eq(q.field("status"), "active"),
           q.eq(q.field("status"), "due_soon"),
           q.eq(q.field("status"), "overdue"),
+          q.eq(q.field("status"), "in_box"),
+          q.eq(q.field("status"), "returned"), // ← tambah ini
+        )
+      )
+      .collect();
+
+    return await Promise.all(
+      transactions.map(async (tx) => {
+        const book = await ctx.db.get(tx.bookId);
+
+        // ← resolve storage ID ke URL sama seperti getBookById
+        let coverImage = book?.coverImage ?? null;
+        if (coverImage && !coverImage.startsWith('http')) {
+          coverImage = await ctx.storage.getUrl(coverImage as any);
+        }
+
+        const fineAmount =
+          tx.status === "overdue" ? calcFine(tx.dueDate) : (tx.fineAmount ?? 0);
+
+        return {
+          ...tx,
+          book: book ? { ...book, coverImage } : null,
+          fineAmount
+        };
+      })
+    );
+  },
+});
+export const getAllActiveTransactions = query({
+  handler: async (ctx) => {
+    const transactions = await ctx.db
+      .query("transactions")
+      .filter((q) =>
+        q.or(
+          q.eq(q.field("status"), "active"),
+          q.eq(q.field("status"), "due_soon"),
+          q.eq(q.field("status"), "overdue"),
           q.eq(q.field("status"), "in_box")
         )
       )
       .collect();
 
-    // join dengan data buku
-    const result = await Promise.all(
+    return await Promise.all(
       transactions.map(async (tx) => {
         const book = await ctx.db.get(tx.bookId);
-        // hitung ulang denda jika overdue
+        const user = await ctx.db.get(tx.userId);
+
+        // ← logic sama persis dengan getBookById
+        let coverImage = book?.coverImage ?? null;
+        if (coverImage && !coverImage.startsWith('http')) {
+          coverImage = await ctx.storage.getUrl(coverImage as any);
+        }
+
         const fineAmount =
           tx.status === "overdue" ? calcFine(tx.dueDate) : (tx.fineAmount ?? 0);
-        return { ...tx, book, fineAmount };
+
+        return {
+          ...tx,
+          book: book ? { ...book, coverImage } : null,
+          user: user ? { name: user.name, nim: user.nim } : null,
+          fineAmount,
+        };
       })
     );
-
-    return result;
   },
 });
 
@@ -127,6 +177,32 @@ export const getLoanHistory = query({
     return result.sort((a, b) => b.borrowDate - a.borrowDate);
   },
 });
+export const getInBoxTransactions = query({
+  handler: async (ctx) => {
+    const transactions = await ctx.db
+      .query("transactions")
+      .filter((q) => q.eq(q.field("status"), "in_box"))
+      .collect();
+
+    return await Promise.all(
+      transactions.map(async (tx) => {
+        const book = await ctx.db.get(tx.bookId);
+        const user = await ctx.db.get(tx.userId);
+
+        let coverImage = book?.coverImage ?? null;
+        if (coverImage && !coverImage.startsWith('http')) {
+          coverImage = await ctx.storage.getUrl(coverImage as any);
+        }
+
+        return {
+          ...tx,
+          book: book ? { ...book, coverImage } : null,
+          user: user ? { name: user.name, nim: user.nim } : null,
+        };
+      })
+    );
+  },
+});
 
 // ─── GET DETAIL TRANSAKSI ────────────────────────────────
 export const getTransactionById = query({
@@ -135,12 +211,98 @@ export const getTransactionById = query({
     const tx = await ctx.db.get(args.transactionId);
     if (!tx) return null;
     const book = await ctx.db.get(tx.bookId);
+
+    // ← resolve storage ID ke URL
+    let coverImage = book?.coverImage ?? null;
+    if (coverImage && !coverImage.startsWith('http')) {
+      coverImage = await ctx.storage.getUrl(coverImage as any);
+    }
+
     const fineAmount =
       tx.status === "overdue" ? calcFine(tx.dueDate) : (tx.fineAmount ?? 0);
-    return { ...tx, book, fineAmount };
+
+    return { 
+      ...tx, 
+      book: book ? { ...book, coverImage } : null,
+      fineAmount 
+    };
   },
 });
+export const borrowBooks = mutation({
+  args: {
+    userId: v.id("users"),
+    items: v.array(v.object({
+      bookId: v.id("books"),
+      quantity: v.number(),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const results = [];
 
+    for (const item of args.items) {
+      const book = await ctx.db.get(item.bookId);
+      if (!book) throw new Error(`Buku tidak ditemukan.`);
+      if (book.availableCopies < item.quantity) {
+        throw new Error(`Stok buku "${book.title}" tidak cukup.`);
+      }
+
+      const borrowDate = Date.now();
+      const dueDate = calcDueDate(borrowDate);
+
+      for (let i = 0; i < item.quantity; i++) {
+        const transactionId = await ctx.db.insert("transactions", {
+          userId: args.userId,
+          bookId: item.bookId,
+          borrowDate,
+          dueDate,
+          status: "active",
+        });
+        results.push(transactionId);
+      }
+
+      const newAvailable = book.availableCopies - item.quantity;
+      await ctx.db.patch(item.bookId, {
+        availableCopies: newAvailable,
+        status: newAvailable === 0 ? "borrowed" : "available",
+      });
+    }
+
+    return { success: true, transactionIds: results };
+  },
+});
+export const getActiveLoansAdmin = query({
+  handler: async (ctx) => {
+    const transactions = await ctx.db
+      .query("transactions")
+      .filter((q) =>
+        q.or(
+          q.eq(q.field("status"), "active"),
+          q.eq(q.field("status"), "due_soon"),
+          q.eq(q.field("status"), "overdue"),
+          q.eq(q.field("status"), "returned"), // ← tambah ini
+        )
+      )
+      .collect();
+
+    return await Promise.all(
+      transactions.map(async (tx) => {
+        const book = await ctx.db.get(tx.bookId);
+        const user = await ctx.db.get(tx.userId);
+
+        let coverImage = book?.coverImage ?? null;
+        if (coverImage && !coverImage.startsWith('http')) {
+          coverImage = await ctx.storage.getUrl(coverImage as any);
+        }
+
+        return {
+          ...tx,
+          book: book ? { ...book, coverImage } : null,
+          user: user ? { name: user.name, nim: user.nim } : null,
+        };
+      })
+    );
+  },
+});
 // ─── RETURN VIA DROP BOX ─────────────────────────────────
 export const returnViaBox = mutation({
   args: {

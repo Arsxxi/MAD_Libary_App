@@ -3,6 +3,8 @@ import { View, Text, ScrollView, TextInput, StyleSheet, ActivityIndicator, SafeA
 import { useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { api } from '../../convex/_generated/api';
+import { Id } from '../../convex/_generated/dataModel';
+import { useAuth } from '../../hooks/useAuth';
 import { Feather } from '@expo/vector-icons';
 
 import BookCard from '../../components/BookCard';
@@ -11,7 +13,11 @@ import { COLORS } from '../../utils/constants';
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
-
+  const { userId } = useAuth();
+  const user = useQuery(
+  api.auth.getUserById,
+  userId ? { userId: userId as Id<'users'> } : 'skip'
+  );
   const books = useQuery(api.books.getAllBooks);
 
   if (books === undefined) {
@@ -35,7 +41,9 @@ export default function HomeScreen() {
         <View style={styles.headerSection}>
           <SafeAreaView>
             <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>Hello Clio</Text>
+              <Text style={styles.headerTitle}>
+                Hello {user?.name ?? ''} 
+              </Text>
               <Text style={styles.headerSubtitle}>Let's Start Reading</Text>
             </View>
             
@@ -68,17 +76,7 @@ export default function HomeScreen() {
 
         {/* Content Section below curve */}
         <View style={styles.contentSection}>
-          {/* Search Bar */}
-          <View style={styles.searchContainer}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search"
-              placeholderTextColor="#888"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-            <Feather name="search" size={20} color="#555" style={styles.searchIcon} />
-          </View>
+        
 
           <Text style={styles.sectionTitleDark}>Popular Books</Text>
           <ScrollView 
@@ -139,7 +137,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#007AFF', 
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
-    paddingBottom: 20,
+    paddingBottom: 40,
     paddingTop: Platform.OS === 'android' ? 40 : 0
   },
   headerTextContainer: {
@@ -154,7 +152,7 @@ const styles = StyleSheet.create({
   horizontalScroll: { flexGrow: 0 },
   
   contentSection: { 
-    paddingTop: 30,
+    paddingTop: 20,
   },
   
   searchContainer: { 

@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { router } from 'expo-router';
-import { View, ActivityIndicator, Text } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
 import { useQuery } from 'convex/react';
+import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { api } from '../convex/_generated/api';
 import { Id } from '../convex/_generated/dataModel';
 
@@ -47,7 +47,11 @@ export default function Index() {
     }
 
     // user valid → ke navigation
-    router.replace('/tabs');
+    if (user.role === 'staff') {
+      router.replace('/admin');
+    } else {
+      router.replace('/(tabs)');
+    }
 
   }, [userId, user]);
 

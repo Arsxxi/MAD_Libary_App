@@ -24,9 +24,14 @@ export default function RootLayout() {
           <Stack.Screen name="book/Bookspage" />
           <Stack.Screen name="loans/MyLoansScreen" />
           <Stack.Screen name="loans/ReturnBooks" />
+          
           <Stack.Screen name="profile/ProfileScreen" />
           <Stack.Screen name="qr/MyQRScreen" />
           <Stack.Screen name="qr/ScanQRScreen" />
+          <Stack.Screen name="admin" />
+          <Stack.Screen name="admin/scan-borrow" />          {/* ← tambah ini */}
+          <Stack.Screen name="borrow/ConfirmBorrow" />   {/* ← tambah ini juga kalau belum ada */}
+          <Stack.Screen name="bookmarks/BookmarksScreen" /> 
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

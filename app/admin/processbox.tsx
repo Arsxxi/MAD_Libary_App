@@ -6,7 +6,7 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
 
-const STATUS_OPTIONS = ['returned',  'lost'];
+const STATUS_OPTIONS = ['returned', 'in box'];
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   returned:  { bg: '#007AFF', text: 'white',   border: '#007AFF' },
@@ -17,13 +17,14 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
   due_soon:  { bg: '#FF9500', text: 'white',   border: '#FF9500' },
 };
 
-export default function ScanCounter() {
+export default function Proccesbox() {
   const [search, setSearch] = useState('');
   const [localStatuses, setLocalStatuses] = useState<Record<string, string>>({});
   const [dropdownOpenId, setDropdownOpenId] = useState<string | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
 
-  const transactions = useQuery(api.transactions.getActiveLoansAdmin) ?? [];
+  
+  const transactions = useQuery(api.transactions.getInBoxTransactions) ?? [];
   const returnViaCounter = useMutation(api.transactions.returnViaCounter);
 
   const filtered = transactions.filter((t: any) =>

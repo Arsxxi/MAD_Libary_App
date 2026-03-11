@@ -99,11 +99,20 @@ export default function MyLoansScreen() {
     userId ? { userId: userId as Id<'users'> } : 'skip'
   ) ?? [];
 
-  const activeLoans = loans.filter((l: any) => l.status === 'active');
-  const dueSoonLoans = loans.filter((l: any) => l.status === 'due_soon');
-  const overdueLoans = loans.filter((l: any) => l.status === 'overdue');
-  const waitingLoans = loans.filter((l: any) => ['waiting', 'in_box'].includes(l.status));
-  const returnedLoans = loans.filter((l: any) => l.status === 'returned');
+  const matchesSearch = (l: any) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      (l.book?.title ?? '').toLowerCase().includes(q) ||
+      (l.book?.author ?? '').toLowerCase().includes(q)
+    );
+  };
+
+  const activeLoans = loans.filter((l: any) => l.status === 'active' && matchesSearch(l));
+  const dueSoonLoans = loans.filter((l: any) => l.status === 'due_soon' && matchesSearch(l));
+  const overdueLoans = loans.filter((l: any) => l.status === 'overdue' && matchesSearch(l));
+  const waitingLoans = loans.filter((l: any) => ['waiting', 'in_box'].includes(l.status) && matchesSearch(l));
+  const returnedLoans = loans.filter((l: any) => l.status === 'returned' && matchesSearch(l));
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -125,14 +134,7 @@ export default function MyLoansScreen() {
         </View>
 
         {/* Top Active Section */}
-        <View style={styles.headerRowSpaceBetween}>
-          <View style={styles.pillOutline}>
-            <Text style={styles.pillTextDark}>Report lost book</Text>
-          </View>
-          <View style={[styles.pillFilled, { backgroundColor: '#007AFF', paddingHorizontal: 25 }]}>
-            <Text style={styles.pillTextWhite}>Active</Text>
-          </View>
-        </View>
+       
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
           {activeLoans.length > 0 ? (
              activeLoans.map((item: any) => <LoanCard key={item._id} item={item} routeStatus="active" />)
@@ -287,7 +289,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   imageContainer: { alignItems: 'center', marginBottom: 10 },
-  cardImage: { width: '100%', height: 180, borderRadius: 8 },
+  cardImage: { width: '100%', height: 180, },
   textContainer: { flex: 1, marginBottom: 12 },
   authorText: { fontSize: 10, color: '#888', marginBottom: 2 },
   titleText: { fontSize: 13, fontWeight: 'bold', color: '#111', lineHeight: 18 },

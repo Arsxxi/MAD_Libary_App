@@ -118,7 +118,7 @@ export default function LoginScreen() {
           {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginButtonText}>MASUK</Text>}
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.adminButton} onPress={() => router.push('/admin')}>
+        <TouchableOpacity style={styles.adminButton} onPress={() => router.push('/admin/login')}>
           <Ionicons name="person" size={14} color="white" />
           <Text style={styles.adminButtonText}>Admin login</Text>
         </TouchableOpacity>

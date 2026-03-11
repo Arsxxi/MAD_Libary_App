@@ -102,8 +102,7 @@ const styles = StyleSheet.create({
   cover: { 
     width: 200, 
     height: 280, 
-    borderWidth: 4, 
-    borderColor: '#007AFF' 
+  
   },
   
   textContainer: { marginBottom: 30 },

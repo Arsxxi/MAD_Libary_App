@@ -1,19 +1,26 @@
-import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { View, StyleSheet } from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import { StyleSheet, View } from "react-native";
+import { useAppStore } from "../../store/useAppStore";
 
 export default function TabLayout() {
+  const isDarkMode = useAppStore((state) => state.isDarkMode);
+
+  const bgColor = isDarkMode ? "#1F2937" : "#FFFFFF";
+  const inactiveColor = isDarkMode ? "#6B7280" : "#94A3B8";
+  const activeColor = isDarkMode ? "#60A5FA" : "#2563EB"; // Lighter blue for dark mode
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#2563EB',
-        tabBarInactiveTintColor: '#94A3B8',
+        tabBarActiveTintColor: activeColor,
+        tabBarInactiveTintColor: inactiveColor,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: bgColor,
           borderTopWidth: 0,
           elevation: 10,
-          shadowColor: '#000',
+          shadowColor: "#000",
           shadowOffset: { width: 0, height: -4 },
           shadowOpacity: 0.08,
           shadowRadius: 12,
@@ -23,14 +30,14 @@ export default function TabLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 11,
-          fontWeight: '500',
+          fontWeight: "500",
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Beranda',
+          title: "Beranda",
           tabBarIcon: ({ color }) => (
             <Ionicons name="home-outline" size={24} color={color} />
           ),
@@ -40,7 +47,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="catalog"
         options={{
-          title: 'Books',
+          title: "Books",
           tabBarIcon: ({ color }) => (
             <Ionicons name="book-outline" size={24} color={color} />
           ),
@@ -51,22 +58,22 @@ export default function TabLayout() {
       <Tabs.Screen
         name="qr"
         options={{
-          title: 'QR Saya',
-          tabBarStyle: { display: 'none' },
+          title: "QR Saya",
+          tabBarStyle: { display: "none" },
           tabBarIcon: ({ focused }) => (
             <View style={styles.qrWrapper}>
               <Ionicons name="qr-code" size={28} color="white" />
             </View>
           ),
-          tabBarLabel: 'QR Saya',
-          tabBarActiveTintColor: '#2563EB',
+          tabBarLabel: "QR Saya",
+          tabBarActiveTintColor: activeColor,
         }}
       />
 
       <Tabs.Screen
         name="loans"
         options={{
-          title: 'Peminjaman',
+          title: "Peminjaman",
           tabBarIcon: ({ color }) => (
             <Ionicons name="document-text-outline" size={24} color={color} />
           ),
@@ -76,12 +83,12 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profil',
+          title: "Profil",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? 'person' : 'person-outline'}
+              name={focused ? "person" : "person-outline"}
               size={24}
-              color={focused ? '#2563EB' : color}
+              color={focused ? activeColor : color}
             />
           ),
         }}
@@ -95,11 +102,11 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#2563EB',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#2563EB",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 25,
-    shadowColor: '#2563EB',
+    shadowColor: "#2563EB",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 8,

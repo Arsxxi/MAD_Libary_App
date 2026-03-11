@@ -1,10 +1,14 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-import { ConvexProvider, ConvexReactClient } from 'convex/react';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import "react-native-reanimated";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!);
 
@@ -13,7 +17,7 @@ export default function RootLayout() {
 
   return (
     <ConvexProvider client={convex}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="auth/LoginScreen" />
@@ -24,14 +28,15 @@ export default function RootLayout() {
           <Stack.Screen name="book/Bookspage" />
           <Stack.Screen name="loans/MyLoansScreen" />
           <Stack.Screen name="loans/ReturnBooks" />
-          
           <Stack.Screen name="profile/ProfileScreen" />
           <Stack.Screen name="qr/MyQRScreen" />
           <Stack.Screen name="qr/ScanQRScreen" />
           <Stack.Screen name="admin" />
-          <Stack.Screen name="admin/scan-borrow" />          {/* ← tambah ini */}
-          <Stack.Screen name="borrow/ConfirmBorrow" />   {/* ← tambah ini juga kalau belum ada */}
-          <Stack.Screen name="bookmarks/BookmarksScreen" /> 
+          <Stack.Screen name="admin/scan-borrow" /> {/* ← tambah ini */}
+          <Stack.Screen name="admin/scan-return" />
+          <Stack.Screen name="borrow/ConfirmBorrow" />{" "}
+          {/* ← tambah ini juga kalau belum ada */}
+          <Stack.Screen name="bookmarks/BookmarksScreen" />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

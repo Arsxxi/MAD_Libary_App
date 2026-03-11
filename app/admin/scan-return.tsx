@@ -1,33 +1,29 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery } from "convex/react";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Platform,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Platform,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 
-export default function ScanBorrow() {
-  const { items } = useLocalSearchParams();
+export default function ScanReturn() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [scanning, setScanning] = useState(false);
-  const [scannedUserId, setScannedUserId] = useState<Id<"users"> | null>(null);
+  const [scannedTransactionId, setScannedTransactionId] =
+    useState<Id<"transactions"> | null>(null);
 
-  const borrowBooks = useMutation(api.transactions.borrowBooks);
-
-  const selectedItems: { bookId: Id<"books">; quantity: number }[] = items
-    ? JSON.parse(items as string)
-    : [];
+  const returnViaCounter = useMutation(api.transactions.returnViaCounter);
 
   const handleBarCodeScanned = async ({ data }: { data: string }) => {
     if (scanned) return;
@@ -35,13 +31,10 @@ export default function ScanBorrow() {
     setScanning(true);
     try {
       const parsedData = JSON.parse(data);
-      if (
-        (parsedData.type === "borrow" || !parsedData.type) &&
-        parsedData.userId
-      ) {
-        setScannedUserId(parsedData.userId as Id<"users">);
+      if (parsedData.type === "return" && parsedData.transactionId) {
+        setScannedTransactionId(parsedData.transactionId as Id<"transactions">);
       } else {
-        Alert.alert("Error", "Bukan QR Code peminjaman yang valid.");
+        Alert.alert("Error", "Bukan QR Code untuk pengembalian yang valid.");
         setScanned(false);
       }
     } catch (e) {
@@ -52,39 +45,52 @@ export default function ScanBorrow() {
     }
   };
 
-  const scannedUser = useQuery(
-    api.auth.getUserById,
-    scannedUserId ? { userId: scannedUserId } : "skip",
+  const scannedTransaction = useQuery(
+    api.transactions.getTransactionById,
+    scannedTransactionId ? { transactionId: scannedTransactionId } : "skip",
   );
 
   useEffect(() => {
-    if (scannedUser === undefined) return;
-    if (scannedUser === null) {
-      Alert.alert("Error", "Mahasiswa tidak ditemukan", [
-        {
-          text: "Scan Ulang",
-          onPress: () => {
-            setScanned(false);
-            setScannedUserId(null);
+    if (scannedTransaction === undefined) return;
+    if (scannedTransaction === null) {
+      if (scannedTransactionId) {
+        Alert.alert("Error", "Transaksi tidak ditemukan", [
+          {
+            text: "Scan Ulang",
+            onPress: () => {
+              setScanned(false);
+              setScannedTransactionId(null);
+            },
           },
-        },
-      ]);
+        ]);
+      }
       return;
     }
-    handleBorrow(scannedUser._id);
-  }, [scannedUser]);
 
-  const handleBorrow = async (userId: Id<"users">) => {
+    // Proceed to return
+    handleReturn(scannedTransaction._id);
+  }, [scannedTransaction]);
+
+  const handleReturn = async (transactionId: Id<"transactions">) => {
     try {
-      await borrowBooks({ userId, items: selectedItems });
-      Alert.alert(
-        "Berhasil",
-        `Peminjaman untuk ${scannedUser?.name} berhasil dicatat!`,
-        [{ text: "OK", onPress: () => router.replace("/admin") }],
-      );
+      const result = await returnViaCounter({ transactionId });
+      let message = "Pengembalian berhasil dicatat!";
+      if (result.fineAmount > 0) {
+        message += `\n\nCatatan: Terdapat denda sebesar Rp. ${result.fineAmount.toLocaleString("id-ID")}`;
+      }
+
+      Alert.alert("Berhasil", message, [
+        { text: "OK", onPress: () => router.replace("/admin/return") },
+      ]);
     } catch (e: any) {
       Alert.alert("Gagal", e.message ?? "Terjadi kesalahan", [
-        { text: "Kembali", onPress: () => router.back() },
+        {
+          text: "Kembali",
+          onPress: () => {
+            setScanned(false);
+            setScannedTransactionId(null);
+          },
+        },
       ]);
     }
   };
@@ -133,26 +139,18 @@ export default function ScanBorrow() {
 
       {/* ── LABEL ── */}
       <View style={styles.bottomSection}>
-        <Text style={styles.scanTitle}>Scan QR</Text>
+        <Text style={styles.scanTitle}>Scan QR Pengembalian</Text>
         <Text style={styles.scanSubtitle}>
-          Arahkan kamera ke QR Code mahasiswa untuk{"\n"}memproses peminjaman
+          Arahkan kamera ke QR Code mahasiswa untuk{"\n"}memproses pengembalian
           buku.
         </Text>
-
-        <View style={styles.infoChip}>
-          <Ionicons name="book-outline" size={16} color="#007AFF" />
-          <Text style={styles.infoChipText}>
-            {selectedItems.reduce((a, b) => a + b.quantity, 0)} buku akan
-            dipinjamkan
-          </Text>
-        </View>
 
         {scanned && !scanning && (
           <TouchableOpacity
             style={styles.rescanBtn}
             onPress={() => {
               setScanned(false);
-              setScannedUserId(null);
+              setScannedTransactionId(null);
             }}
           >
             <Text style={styles.rescanText}>Scan Ulang</Text>
@@ -193,7 +191,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  // ── scan area
   scanArea: {
     width: SCAN_BOX,
     height: SCAN_BOX,
@@ -209,7 +206,6 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 
-  // corner brackets
   cornerTL: {
     position: "absolute",
     top: 0,
@@ -265,7 +261,6 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
 
-  // ── bottom section
   bottomSection: {
     flex: 1,
     alignItems: "center",
@@ -285,20 +280,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 24,
   },
-  infoChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#EFF6FF",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 6,
-  },
-  infoChipText: {
-    color: "#007AFF",
-    fontWeight: "600",
-    fontSize: 13,
-  },
   rescanBtn: {
     marginTop: 20,
     backgroundColor: "#007AFF",
@@ -308,7 +289,6 @@ const styles = StyleSheet.create({
   },
   rescanText: { color: "white", fontWeight: "bold", fontSize: 16 },
 
-  // ── loading
   loadingOverlay: {
     position: "absolute",
     top: 0,
@@ -326,7 +306,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // ── permission
   permissionContainer: {
     flex: 1,
     justifyContent: "center",

@@ -27,6 +27,8 @@ interface AppState {
   // ── UI State ──────────────────────────────────────────
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
 
   // ── Search State ──────────────────────────────────────
   searchKeyword: string;
@@ -59,14 +61,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       return { bookmarkedBookIds: newSet };
     }),
 
-  setBookmarks: (bookIds) =>
-    set({ bookmarkedBookIds: new Set(bookIds) }),
+  setBookmarks: (bookIds) => set({ bookmarkedBookIds: new Set(bookIds) }),
 
   isBookmarked: (bookId) => get().bookmarkedBookIds.has(bookId),
 
   // ── UI State ──────────────────────────────────────────
   activeTab: "Home",
   setActiveTab: (tab) => set({ activeTab: tab }),
+  isDarkMode: false,
+  toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
 
   // ── Search State ──────────────────────────────────────
   searchKeyword: "",
@@ -80,6 +83,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       user: null,
       bookmarkedBookIds: new Set(),
       activeTab: "Home",
+      isDarkMode: false,
       searchKeyword: "",
       searchFilter: "title",
     }),
